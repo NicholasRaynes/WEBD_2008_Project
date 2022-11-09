@@ -39,7 +39,7 @@
 <body>
     <?php include('nav.php'); ?>
     <?php if($flag): ?>
-        <div class="container-xxl">
+        <div class="container-md">
             <h2 class="create_edit_header">Create Article</h2>
             <form method="post" action="creator_hub.php">
                 <label for="title">Article Title</label>
@@ -54,7 +54,8 @@
             <p>Authorized users are able to update and delete articles by selecting the edit feature within each article page.</p>
         </div>
     <?php elseif(!$flag): ?>
-        <h2>Please enter valid article titles, captions, and content.<a href="index.php"></a></h2>
+        <h2 id="details">Please enter valid article titles, captions, and content.<a href="index.php"></a></h2>
     <?php endif ?>
+    <?php include('footer.php'); ?>
 </body>
 </html>
