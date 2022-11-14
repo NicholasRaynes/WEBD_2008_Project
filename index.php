@@ -30,6 +30,25 @@
     $statement = $db->prepare($query);
 
     $statement->execute();
+
+    $categories_query = "SELECT * FROM categories";
+    $categories_statement = $db->prepare($categories_query);
+    $categories_statement->execute();
+
+    if(isset($_POST['category_filter']))
+    {
+        $category_filter = filter_input(INPUT_POST, 'category_filter', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+
+        $query = "SELECT * FROM articles WHERE category_name = :category_filter";
+
+        $statement = $db->prepare($query);
+
+        $statement->bindValue(':category_filter', $category_filter);
+
+        $message = "(Sorting By {$category_filter} Category)";
+
+        $statement->execute();
+    }
 ?>
 
 <!DOCTYPE html>
@@ -56,6 +75,11 @@
                     <option value="title_sort" name="title_sort" <?php if($order_by == 'title ASC') echo 'selected="selected"';?>>Title Alphabetically</option>
                 </select>
             </div>
+            <div id="categories">
+                <?php while($entries = $categories_statement->fetch()): ?>
+                    <button name="category_filter" class="btn btn-primary" href="index.php" role="button" onchange="this.form.submit()" value=<?= $entries['category_name'] ?>><?= $entries['category_name'] ?></button>
+                <?php endwhile ?>
+            </div>
             <?php if ($statement->rowCount() == 0): ?>
                 <p>No articles found.</p>
             <?php else: ?>
@@ -64,6 +88,7 @@
                         <h2><a href="full_article.php?id=<?= $entries['id'] ?>"><?= $entries['title'] ?></a></h2>
                         <p><?= substr($entries['caption'], 0, 100) . "..."?></p>
                         <p>Published: <?= date('F j, Y, g:i a', strtotime($entries['created_date'])) ?></p>
+                        <button name="category_filter" class="btn btn-primary" href="index.php" role="button" onchange="this.form.submit()" value=<?= $entries['category_name'] ?>><?= $entries['category_name'] ?></button>
                     </div>
                 <?php endwhile ?>
             <?php endif ?>
