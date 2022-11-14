@@ -30,7 +30,10 @@
     <?php include('nav.php') ?>
     <div id="full_article">
         <p><i class="fa-regular fa-pen-to-square"></i><a href="update_article.php?id=<?= $entries['id'] ?>"> Edit Article</a></p>
-        <p>Published: <?= date('F j, Y, g:i a', strtotime($entries['created_date'])) ?></p>
+        <form method="post" action="index.php">
+            <button id= "full_article_category" class="btn btn-outline-primary" role="button"><?= $entries['category_name'] ?></button>
+        </form>
+        <p id="full_article_date">Published: <?= date('F j, Y, g:i a', strtotime($entries['created_date'])) ?></p>
         <h2><?= $entries['title'] ?></h2>
         <p><?= $entries['caption'] ?></p>   
         <p><?= $entries['content'] ?></p>       
