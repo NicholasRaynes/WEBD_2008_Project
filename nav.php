@@ -10,7 +10,7 @@
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
       <li class="nav-item active">
-        <a class="nav-link" href="index.php"><i class="fa-solid fa-house"></i> Home<span class="sr-only">(current)</span></a>
+        <a class="nav-link" href="index.php"><i class="fa-solid fa-house"></i> Home</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="nba_stats.php"><i class="fa-solid fa-database"></i> NBA Stats</a>
@@ -20,6 +20,9 @@
       </li>
       <li class="nav-item">
         <a class="nav-link" href="creator_hub.php"><i class="fa-solid fa-door-open"></i> Creator Hub</a>
+      </li>
+       <li class="nav-item">
+        <a class="nav-link" href="admin_hub.php"><i class="fa-solid fa-wrench"></i> Admin Hub</a>
       </li>
     </ul>
     </div>
