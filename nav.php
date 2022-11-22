@@ -1,3 +1,9 @@
+<?php
+  $search_categories_query = "SELECT * FROM categories";
+  $search_categories_statement = $db->prepare($search_categories_query);
+  $search_categories_statement->execute();
+?>
+
 <link rel="stylesheet" type="text/css" href="styles.css">
 <script src="https://kit.fontawesome.com/d4de3d3a72.js" crossorigin="anonymous"></script>
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
@@ -23,6 +29,14 @@
       </li>
        <li class="nav-item">
         <a class="nav-link" href="admin_hub.php"><i class="fa-solid fa-wrench"></i> Admin Hub</a>
+      </li>
+      <li>
+        <form method="post" action="index.php">
+          <div class="input-group">
+            <input name="search" class="form-control rounded" aria-describedby="search-addon" />
+            <button type="submit" class="btn btn-outline-primary">Search</button>
+          </div>
+        </form>
       </li>
     </ul>
     </div>
