@@ -49,6 +49,19 @@
 
         $statement->execute();
     }
+
+    if(isset($_POST['search']))
+    {
+        $search_filtered = filter_input(INPUT_POST, 'search', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    
+        $query = "SELECT * FROM articles WHERE title LIKE '%{$search_filtered}%' OR caption LIKE '%{$search_filtered}%' OR content LIKE '%{$search_filtered}%'";
+       
+        $statement = $db->prepare($query);
+
+        $message = "(Sorting By Search)";
+
+        $statement->execute();
+    }
 ?>
 
 <!DOCTYPE html>
