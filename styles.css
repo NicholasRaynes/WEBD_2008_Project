@@ -161,3 +161,47 @@ p
 {
     pointer-events: none;
 }
+
+#comment_section
+{
+  margin: auto;
+  margin-top: 30px;
+  margin-left: 50px;
+  width: 70%;
+  align-content: center;
+}
+
+#comment_section #comment
+{
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+#comment_section h3
+{
+    margin-top: -10px;
+    margin-bottom: 20px;
+}
+
+#existing_comments
+{
+    margin: auto;
+    margin-top: 30px;
+    margin-left: 50px;
+    width: 20%;
+    padding: 20px;
+    border-radius: 5px;
+    border-style: solid;
+    border-width: thin;
+    margin-bottom: 40px;
+}
+
+#existing_comments p
+{
+    width: 100%;
+}
+
+#comment_date
+{
+    margin-bottom: -1px;
+}
