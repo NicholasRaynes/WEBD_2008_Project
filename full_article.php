@@ -1,4 +1,6 @@
 <?php
+    session_start();
+
     require('connect.php');
     
     $id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
@@ -16,7 +18,7 @@
 
     $comments_display_statement->execute();
 
-    if($_POST && isset($_POST['comment']) && !empty($_POST['comment_area']) && require('authenticate.php'))
+    if($_POST && isset($_POST['comment']) && !empty($_POST['comment_area']) && isset($_SESSION['user_id']))
     {
         $id = filter_input(INPUT_POST, 'id', FILTER_SANITIZE_NUMBER_INT);
 
@@ -36,6 +38,10 @@
     else if ($_POST && empty($_POST['comment_area']))
     {
         header("Location: index.php");
+    }
+    else if ($_POST && !isset($_SESSION['user_id']))
+    {
+        header("Location: access_concern.php");
     }
 ?>
 
