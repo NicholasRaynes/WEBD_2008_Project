@@ -1,5 +1,42 @@
 <?php
- 
+  session_start();
+
+  require('connect.php');
+
+  if(isset($_POST['sign_up']))
+  {
+    $username = filter_input(INPUT_POST, 'register_username', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $email = filter_input(INPUT_POST, 'register_email', FILTER_SANITIZE_EMAIL);
+    $password = filter_input(INPUT_POST, 'register_password', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $verify_password = filter_input(INPUT_POST, 'verify_password', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $password_hashed = password_hash($password, PASSWORD_BCRYPT);
+    $default_access_level = 0;
+
+    $existing_users_query = "SELECT * FROM users WHERE username=:username";
+    $existing_users_statement = $db->prepare($existing_users_query);
+    $existing_users_statement->bindValue(':username', $username);
+    $existing_users_statement->execute();
+
+    if($existing_users_statement->rowCount() > 0 || empty($username) || empty($email) || $password != $verify_password)
+    {
+      echo "<script>alert('Please enter valid values for all fields, and ensure your password entries match.');</script>";
+    }
+    else
+    {
+      $add_user_query = "INSERT INTO users (username, password, email, access_level) VALUES (:username, :password_hashed, :email, :default_access_level)";
+
+      $add_user_statement = $db->prepare($add_user_query);
+
+      $add_user_statement->bindValue(':username', $username);
+      $add_user_statement->bindValue(':password_hashed', $password_hashed);
+      $add_user_statement->bindValue(':email', $email);
+      $add_user_statement->bindValue(':default_access_level', $default_access_level);
+
+      $add_user_statement->execute();
+
+      header("Location: successful_register.php");
+    }
+  }
 ?>
 
 <!DOCTYPE html>
@@ -41,7 +78,7 @@
 
                   <div class="form-outline mb-4">
                     <input name="verify_password" type="password" id="verify_password" class="form-control form-control-lg" />
-                    <label class="form-label" for="verify_password">Re-enter Password</label>
+                    <label class="form-label" for="verify_password">Verify password</label>
                   </div>
 
                   <div class="pt-1 mb-4">
