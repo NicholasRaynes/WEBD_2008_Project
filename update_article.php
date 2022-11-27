@@ -1,63 +1,71 @@
 <?php
-    require('authenticate.php');
+    session_start();
+
     require('connect.php');
 
-    if($_POST && !empty($_POST['title']) && !empty($_POST['content']) && !empty($_POST['caption']) && !empty($_POST['id']))
+    if(isset($_SESSION['user_id']) && $_SESSION['access'] >= 1)
     {
-        $title = filter_input(INPUT_POST, 'title', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-        $content = filter_input(INPUT_POST, 'content', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-        $id = filter_input(INPUT_POST, 'id', FILTER_SANITIZE_NUMBER_INT);
-        $caption = filter_input(INPUT_POST, 'caption', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-
-        $query = "UPDATE articles SET title = :title, content = :content, caption = :caption WHERE id = :id";
-
-        $statement = $db->prepare($query);
-
-        $statement->bindValue(':title', $title);
-        $statement->bindValue(':content', $content);
-        $statement->bindValue(':id', $id, PDO::PARAM_INT);
-        $statement->bindValue(':caption', $caption);
-
-        $statement->execute();
-
-        header("Location: index.php");
-    } 
-    else if(isset($_GET['id']) && filter_var(filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT), FILTER_VALIDATE_INT))
-    {
-        $id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
-
-        $query = "SELECT * FROM articles WHERE id = :id";
-
-        $statement = $db->prepare($query);
-
-        $statement->bindValue(':id', $id, PDO::PARAM_INT);
-
-        $statement->execute();
-
-        $row = $statement->fetch(); 
-
-        if($row)
+        if($_POST && !empty($_POST['title']) && !empty($_POST['content']) && !empty($_POST['caption']) && !empty($_POST['id']))
         {
-            if($_POST && (empty(trim($_POST['title'])) || empty(trim($_POST['content'])) || empty(trim($_POST['caption']))))
+            $title = filter_input(INPUT_POST, 'title', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $content = filter_input(INPUT_POST, 'content', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $id = filter_input(INPUT_POST, 'id', FILTER_SANITIZE_NUMBER_INT);
+            $caption = filter_input(INPUT_POST, 'caption', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+
+            $query = "UPDATE articles SET title = :title, content = :content, caption = :caption WHERE id = :id";
+
+            $statement = $db->prepare($query);
+
+            $statement->bindValue(':title', $title);
+            $statement->bindValue(':content', $content);
+            $statement->bindValue(':id', $id, PDO::PARAM_INT);
+            $statement->bindValue(':caption', $caption);
+
+            $statement->execute();
+
+            header("Location: index.php");
+        } 
+        else if(isset($_GET['id']) && filter_var(filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT), FILTER_VALIDATE_INT))
+        {
+            $id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
+
+            $query = "SELECT * FROM articles WHERE id = :id";
+
+            $statement = $db->prepare($query);
+
+            $statement->bindValue(':id', $id, PDO::PARAM_INT);
+
+            $statement->execute();
+
+            $row = $statement->fetch(); 
+
+            if($row)
             {
-                $flag = false;
-                $errorMessage = "Your title, caption, or content can't be empty.";
+                if($_POST && (empty(trim($_POST['title'])) || empty(trim($_POST['content'])) || empty(trim($_POST['caption']))))
+                {
+                    $flag = false;
+                    $errorMessage = "Your title, caption, or content can't be empty.";
+                } 
+                else 
+                {
+                    $flag = true;  
+                }
             } 
             else 
             {
-                $flag = true;  
+                $flag = false;
+                $errorMessage = "The ID you entered does not exist in the database. ";
             }
         } 
         else 
         {
-            $flag = false;
-            $errorMessage = "The ID you entered does not exist in the database. ";
-        }
-    } 
-    else 
+            header("Location: index.php");
+        }  
+    }
+    else
     {
-        header("Location: index.php");
-    }  
+        header("Location: access_concern.php");
+    }
 ?>
 
 <!DOCTYPE html>
