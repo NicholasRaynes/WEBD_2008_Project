@@ -1,5 +1,6 @@
 <?php
-	require('authenticate.php');
+    session_start();
+
     require('connect.php');
 
     $flag = true;
