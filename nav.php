@@ -1,4 +1,6 @@
 <?php
+  @session_start();
+
   $search_categories_query = "SELECT * FROM categories";
   $search_categories_statement = $db->prepare($search_categories_query);
   $search_categories_statement->execute();
@@ -27,7 +29,7 @@
       <li class="nav-item">
         <a class="nav-link" href="creator_hub.php"><i class="fa-solid fa-door-open"></i> Creator Hub</a>
       </li>
-       <li class="nav-item">
+      <li class="nav-item">
         <a class="nav-link" href="admin_hub.php"><i class="fa-solid fa-wrench"></i> Admin Hub</a>
       </li>
       <li>
@@ -38,6 +40,16 @@
           </div>
         </form>
       </li>
+      <?php if (!isset($_SESSION['user_id'])): ?>
+        <li class="nav-item" id="login_link">
+          <a class="nav-link" href="login.php"><i class="fa-solid fa-user"></i> Login</a>
+        </li>
+      <?php endif; ?>
+      <?php if (isset($_SESSION['user_id'])): ?>
+        <li class="nav-item" id="logout_link">
+          <a class="nav-link" href="logout.php"><i class="fa-solid fa-user"></i> Logout</a>
+        </li>
+      <?php endif; ?>
     </ul>
     </div>
   </div>
