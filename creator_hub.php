@@ -1,38 +1,46 @@
 <?php
-    require('authenticate.php');
+    session_start();
+
     require('connect.php');
 
-    $flag = true;
-
-    if($_POST && !empty(trim($_POST['title'])) && !empty(trim($_POST['content'])) && !empty(trim($_POST['caption'])) && !empty(trim($_POST['category_name'])))
-    {        
-        $title = filter_input(INPUT_POST, 'title', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-        $content = filter_input(INPUT_POST, 'content', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-        $caption = filter_input(INPUT_POST, 'caption', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-        $category_name = filter_input(INPUT_POST, 'category_name', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-
-        $query = "INSERT INTO articles (title, caption, content, category_name) VALUES (:title, :caption, :content, :category_name)";
-        $statement = $db->prepare($query);
-
-        $statement->bindValue(':title', $title);
-        $statement->bindValue(':content', $content);
-        $statement->bindValue(':caption', $caption);
-        $statement->bindValue(':category_name', $category_name);
-
-        $statement->execute();
-
-        header("Location: index.php"); 
-    } 
-    elseif($_POST && (empty(trim($_POST['title'])) || empty(trim($_POST['content'])) || empty(trim($_POST['caption'])) || empty(trim($_POST['category_name'])))) 
+    if(isset($_SESSION['user_id']) && $_SESSION['access'] >= 1)
     {
-        $flag =  false;
+        $flag = true;
+
+        if($_POST && !empty(trim($_POST['title'])) && !empty(trim($_POST['content'])) && !empty(trim($_POST['caption'])) && !empty(trim($_POST['category_name'])))
+        {        
+            $title = filter_input(INPUT_POST, 'title', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $content = filter_input(INPUT_POST, 'content', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $caption = filter_input(INPUT_POST, 'caption', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $category_name = filter_input(INPUT_POST, 'category_name', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+
+            $query = "INSERT INTO articles (title, caption, content, category_name) VALUES (:title, :caption, :content, :category_name)";
+            $statement = $db->prepare($query);
+
+            $statement->bindValue(':title', $title);
+            $statement->bindValue(':content', $content);
+            $statement->bindValue(':caption', $caption);
+            $statement->bindValue(':category_name', $category_name);
+
+            $statement->execute();
+
+            header("Location: index.php"); 
+        } 
+        elseif($_POST && (empty(trim($_POST['title'])) || empty(trim($_POST['content'])) || empty(trim($_POST['caption'])) || empty(trim($_POST['category_name'])))) 
+        {
+            $flag =  false;
+        }
+
+        // Below is for populating the categories drop down options.
+
+        $categories_query = "SELECT * FROM categories";
+        $categories_statement = $db->prepare($categories_query);
+        $categories_statement->execute();
     }
-
-    // Below is for populating the categories drop down options.
-
-    $categories_query = "SELECT * FROM categories";
-    $categories_statement = $db->prepare($categories_query);
-    $categories_statement->execute();
+    else
+    {
+        header("Location: access_concern.php");
+    }
 ?>
 
 <!DOCTYPE html>
