@@ -1,5 +1,39 @@
 <?php
- 
+  session_start();
+
+  require('connect.php');
+
+  if(isset($_POST['login']))
+  {
+    $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $password = filter_input(INPUT_POST, 'password', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+
+    $query = "SELECT * FROM users WHERE username=:username";
+    $statement = $db->prepare($query);
+    $statement->bindValue(':username', $username, PDO::PARAM_STR);
+    $statement->execute();
+    $result = $statement->fetch();
+
+    if(!$result)
+    {
+      echo "<script>alert('Username or password is correct.');</script>";
+    }
+    else
+    {
+      if(password_verify($password, $result['password']))
+      {
+        $_SESSION['user_id'] = $result['id'];
+        $_SESSION['access'] = $result['access_level'];
+        $_SESSION['username'] = $result['username'];
+
+        header("Location: successful_login.php");
+      }
+      else
+      {
+        echo "<script>alert('Username or password is correct.');</script>";
+      }
+    }
+  }
 ?>
 
 <!DOCTYPE html>
