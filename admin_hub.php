@@ -1,26 +1,34 @@
 <?php
-	require('authenticate.php');
+    session_start();
+
     require('connect.php');
 
-    $flag = true;
-
-    if($_POST && !empty(trim($_POST['category_name'])))
-    {        
-        $category_name = filter_input(INPUT_POST, 'category_name', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-
-        $query = "INSERT INTO categories (category_name) VALUES (:category_name)";
-
-        $statement = $db->prepare($query);
-
-        $statement->bindValue(':category_name', $category_name);
-
-        $statement->execute();
-
-        header("Location: index.php"); 
-    } 
-    elseif($_POST && (empty(trim($_POST['category_name'])))) 
+    if(isset($_SESSION['user_id']) && $_SESSION['access'] == 2)
     {
-        $flag =  false;
+        $flag = true;
+
+        if($_POST && !empty(trim($_POST['category_name'])))
+        {        
+            $category_name = filter_input(INPUT_POST, 'category_name', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+
+            $query = "INSERT INTO categories (category_name) VALUES (:category_name)";
+
+            $statement = $db->prepare($query);
+
+            $statement->bindValue(':category_name', $category_name);
+
+            $statement->execute();
+
+            header("Location: index.php"); 
+        } 
+        elseif($_POST && (empty(trim($_POST['category_name'])))) 
+        {
+            $flag =  false;
+        }
+    }
+    else
+    {
+        header("Location: access_concern.php");
     }
 ?>
 
