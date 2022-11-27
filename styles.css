@@ -205,3 +205,13 @@ p
 {
     margin-bottom: -1px;
 }
+
+#success_message
+{
+    margin-top: 20px !important;
+}
+
+#home
+{
+    margin-top: 20px !important;
+}
