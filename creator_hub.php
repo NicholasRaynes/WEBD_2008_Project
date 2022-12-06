@@ -3,30 +3,71 @@
 
     require('connect.php');
 
+    require '\xampp\htdocs\a\php-image-resize-master\lib\ImageResize.php';
+    require '\xampp\htdocs\a\php-image-resize-master\lib\ImageResizeException.php';
+
+    use \Gumlet\ImageResize;
+    use \Gumlet\ImageResizeException;
+
     if(isset($_SESSION['user_id']) && $_SESSION['access'] >= 1)
     {
         $flag = true;
 
-        if($_POST && !empty(trim($_POST['title'])) && !empty(trim($_POST['content'])) && !empty(trim($_POST['caption'])) && !empty(trim($_POST['category_name'])))
-        {        
-            $title = filter_input(INPUT_POST, 'title', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-            $content = filter_input(INPUT_POST, 'content', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-            $caption = filter_input(INPUT_POST, 'caption', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-            $category_name = filter_input(INPUT_POST, 'category_name', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        if($_POST && !empty(trim($_POST['title'])) && !empty(trim($_POST['content'])) && !empty(trim($_POST['caption'])) && !empty(trim($_POST['category_name'])) && isset($_FILES['image']))
+        {  
+            $image_name = $_FILES['image']['name'];
+            $tmp_name = $_FILES['image']['tmp_name'];
+            $image_error = $_FILES['image']['error'];
 
-            $query = "INSERT INTO articles (title, caption, content, category_name) VALUES (:title, :caption, :content, :category_name)";
-            $statement = $db->prepare($query);
+            if ($image_error === 0)
+            {
+                $allowed_file_extensions = ['jpg', 'jpeg', 'png'];
+                $image_extension = pathinfo($image_name, PATHINFO_EXTENSION);
+                $valid_image_extension = in_array($image_extension, $allowed_file_extensions);
 
-            $statement->bindValue(':title', $title);
-            $statement->bindValue(':content', $content);
-            $statement->bindValue(':caption', $caption);
-            $statement->bindValue(':category_name', $category_name);
+                if($valid_image_extension)
+                {
+                    $image_upload_path = 'uploads/'.$image_name;
 
-            $statement->execute();
+                    move_uploaded_file($tmp_name, $image_upload_path);
 
-            header("Location: index.php"); 
+                    $image = new ImageResize($image_upload_path);
+                    $image->resizeToWidth(1300);
+                    $image->save($image_upload_path);
+
+                    $title = filter_input(INPUT_POST, 'title', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+                    $content = filter_input(INPUT_POST, 'content', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+                    $caption = filter_input(INPUT_POST, 'caption', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+                    $category_name = filter_input(INPUT_POST, 'category_name', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+                    $image_file = $image_name;
+
+                    $query = "INSERT INTO articles (title, caption, content, category_name, image_file) VALUES (:title, :caption, :content, :category_name, :image_file)";
+
+                    $statement = $db->prepare($query);
+
+                    $statement->bindValue(':title', $title);
+                    $statement->bindValue(':content', $content);
+                    $statement->bindValue(':caption', $caption);
+                    $statement->bindValue(':category_name', $category_name);
+                    $statement->bindValue(':image_file', $image_file);
+
+                    $statement->execute();
+
+                    header("Location: index.php");
+                }
+                else
+                {
+                    header("Location: image_error.php");
+                }
+            }
+
+            else
+            {
+                header("Location: image_error.php");
+            } 
         } 
-        elseif($_POST && (empty(trim($_POST['title'])) || empty(trim($_POST['content'])) || empty(trim($_POST['caption'])) || empty(trim($_POST['category_name'])))) 
+        elseif($_POST && (empty(trim($_POST['title'])) || empty(trim($_POST['content'])) || empty(trim($_POST['caption'])) || empty(trim($_POST['category_name'])) ||  
+            !isset($_POST['image']))) 
         {
             $flag =  false;
         }
@@ -57,7 +98,7 @@
     <?php if($flag): ?>
         <div class="container-md">
             <h2 class="create_edit_header">Create Article</h2>
-            <form method="post" action="creator_hub.php">
+            <form method="post" action="creator_hub.php" enctype="multipart/form-data">
                 <label for="title">Article Title:</label>
                 <input id="title" name="title">
                 <label for="caption">Article Caption:</label>
@@ -70,7 +111,11 @@
                         <option><?= $entries['category_name'] ?></option>
                     <?php endwhile ?>
                 </select>
-                <input type="submit" id="create" value="Create Article">   
+                <div>
+                    <label for="image" >Select Image: </label>
+                    <input type="file" name="image" value="Image Upload"><br> 
+                </div>
+                <input type="submit" name="submit" id="create" value="Create Article">  
             </form>
             <h2>Updating & Deleting Articles</h2>
             <p>Authorized users are able to update and delete articles by selecting the edit feature within each article page.</p>
