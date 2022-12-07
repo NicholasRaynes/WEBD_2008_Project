@@ -9,79 +9,76 @@
     use \Gumlet\ImageResize;
     use \Gumlet\ImageResizeException;
 
-    if(isset($_SESSION['user_id']) && $_SESSION['access'] >= 1)
-    {
-        $flag = true;
+    $flag = true;
 
-        if($_POST && !empty(trim($_POST['title'])) && !empty(trim($_POST['content'])) && !empty(trim($_POST['caption'])) && !empty(trim($_POST['category_name'])) && isset($_FILES['image']))
-        {  
-            $image_name = $_FILES['image']['name'];
-            $tmp_name = $_FILES['image']['tmp_name'];
-            $image_error = $_FILES['image']['error'];
+    if($_POST && !empty(trim($_POST['title'])) && !empty(trim($_POST['content'])) && !empty(trim($_POST['caption'])) && !empty(trim($_POST['category_name'])) && isset($_FILES['image']))
+    {  
+        $image_name = $_FILES['image']['name'];
+        $tmp_name = $_FILES['image']['tmp_name'];
+        $image_error = $_FILES['image']['error'];
 
-            if ($image_error === 0)
+        if ($image_error === 0)
+        {
+            $allowed_mime_types = ['image/jpeg', 'image/png', 'image/jpg'];
+            $allowed_file_extensions = ['jpg', 'jpeg', 'png'];
+
+            $image_extension = pathinfo($image_name, PATHINFO_EXTENSION);
+            $mime_type = getimagesize($tmp_name)['mime'];
+
+            $valid_image_extension = in_array($image_extension, $allowed_file_extensions);
+            $valid_mime_type = in_array($mime_type, $allowed_mime_types);
+
+            if($valid_image_extension && $valid_mime_type)
             {
-                $allowed_file_extensions = ['jpg', 'jpeg', 'png'];
-                $image_extension = pathinfo($image_name, PATHINFO_EXTENSION);
-                $valid_image_extension = in_array($image_extension, $allowed_file_extensions);
+                $image_upload_path = 'uploads/'.$image_name;
 
-                if($valid_image_extension)
-                {
-                    $image_upload_path = 'uploads/'.$image_name;
+                move_uploaded_file($tmp_name, $image_upload_path);
 
-                    move_uploaded_file($tmp_name, $image_upload_path);
+                $image = new ImageResize($image_upload_path);
+                $image->resizeToWidth(1300);
+                $image->save($image_upload_path);
 
-                    $image = new ImageResize($image_upload_path);
-                    $image->resizeToWidth(1300);
-                    $image->save($image_upload_path);
+                $title = filter_input(INPUT_POST, 'title', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+                $content = filter_input(INPUT_POST, 'content', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+                $caption = filter_input(INPUT_POST, 'caption', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+                $category_name = filter_input(INPUT_POST, 'category_name', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+                $image_file = $image_name;
 
-                    $title = filter_input(INPUT_POST, 'title', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-                    $content = filter_input(INPUT_POST, 'content', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-                    $caption = filter_input(INPUT_POST, 'caption', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-                    $category_name = filter_input(INPUT_POST, 'category_name', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-                    $image_file = $image_name;
+                $query = "INSERT INTO articles (title, caption, content, category_name, image_file) VALUES (:title, :caption, :content, :category_name, :image_file)";
 
-                    $query = "INSERT INTO articles (title, caption, content, category_name, image_file) VALUES (:title, :caption, :content, :category_name, :image_file)";
+                $statement = $db->prepare($query);
 
-                    $statement = $db->prepare($query);
+                $statement->bindValue(':title', $title);
+                $statement->bindValue(':content', $content);
+                $statement->bindValue(':caption', $caption);
+                $statement->bindValue(':category_name', $category_name);
+                $statement->bindValue(':image_file', $image_file);
 
-                    $statement->bindValue(':title', $title);
-                    $statement->bindValue(':content', $content);
-                    $statement->bindValue(':caption', $caption);
-                    $statement->bindValue(':category_name', $category_name);
-                    $statement->bindValue(':image_file', $image_file);
+                $statement->execute();
 
-                    $statement->execute();
-
-                    header("Location: index.php");
-                }
-                else
-                {
-                    header("Location: image_error.php");
-                }
+                header("Location: index.php");
             }
-
             else
             {
                 header("Location: image_error.php");
-            } 
-        } 
-        elseif($_POST && (empty(trim($_POST['title'])) || empty(trim($_POST['content'])) || empty(trim($_POST['caption'])) || empty(trim($_POST['category_name'])) ||  
-            !isset($_POST['image']))) 
-        {
-            $flag =  false;
+            }
         }
-
-        // Below is for populating the categories drop down options.
-
-        $categories_query = "SELECT * FROM categories";
-        $categories_statement = $db->prepare($categories_query);
-        $categories_statement->execute();
+        else
+        {
+            header("Location: image_error.php");
+        } 
     }
-    else
+    elseif($_POST && (empty(trim($_POST['title'])) || empty(trim($_POST['content'])) || empty(trim($_POST['caption'])) || empty(trim($_POST['category_name'])) ||  
+            !isset($_POST['image']))) 
     {
-        header("Location: access_concern.php");
+        $flag =  false;
     }
+
+    // Below is for populating the categories drop down options.
+
+    $categories_query = "SELECT * FROM categories";
+    $categories_statement = $db->prepare($categories_query);
+    $categories_statement->execute();
 ?>
 
 <!DOCTYPE html>
