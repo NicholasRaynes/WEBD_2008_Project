@@ -58,6 +58,9 @@
 <body>
     <?php include('nav.php') ?>
     <div id="full_article">
+        <?php if ($entries['image_file'] !== ""): ?>
+            <img id="article_image" src="uploads/<?= $entries['image_file']?>" style="margin-bottom: 17px;border-radius: 10px;width: 75%;">
+        <?php endif; ?>
         <p><i class="fa-regular fa-pen-to-square"></i><a href="update_article.php?id=<?= $entries['id'] ?>"> Edit Article</a></p>
         <button id="full_article_category" class="btn btn-outline-primary" role="button"><?= $entries['category_name'] ?></button>
         <p id="full_article_date">Published: <?= date('F j, Y, g:i a', strtotime($entries['created_date'])) ?></p>
