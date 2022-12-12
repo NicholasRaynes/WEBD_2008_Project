@@ -26,12 +26,16 @@
       <li class="nav-item">
         <a class="nav-link" href="fan_forum.php"><i class="fa-solid fa-list"></i> Fan Forum</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="creator_hub.php"><i class="fa-solid fa-door-open"></i> Creator Hub</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="admin_hub.php"><i class="fa-solid fa-wrench"></i> Admin Hub</a>
-      </li>
+      <?php if (isset($_SESSION['user_id']) && $_SESSION['access'] >= 1): ?>
+        <li class="nav-item">
+          <a class="nav-link" href="creator_hub.php"><i class="fa-solid fa-door-open"></i> Creator Hub</a>
+        </li>
+      <?php endif; ?>
+      <?php if (isset($_SESSION['user_id']) && $_SESSION['access'] == 2): ?>
+        <li class="nav-item">
+          <a class="nav-link" href="admin_hub.php"><i class="fa-solid fa-wrench"></i> Admin Hub</a>
+        </li>
+      <?php endif; ?>
       <li>
         <form method="post" action="index.php">
           <div class="input-group">
