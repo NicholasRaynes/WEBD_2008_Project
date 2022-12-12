@@ -97,10 +97,10 @@
                 <p>No articles found.</p>
             <?php else: ?>
                 <?php while($entries = $statement->fetch()): ?>
-                    <div id="articles">
-                        <h2><a href="full_article.php?id=<?= $entries['id'] ?>"><?= $entries['title'] ?></a></h2>
-                        <p><?= substr($entries['caption'], 0, 100) . "..."?></p>
-                        <p>Published: <?= date('F j, Y, g:i a', strtotime($entries['created_date'])) ?></p>
+                    <div id="articles" style="background-image: url('uploads/<?= $entries['image_file'] ?>');background-position:center;background-size: cover;">
+                        <h2><a style="color: white;font-weight: bold;-webkit-text-stroke: 1px black" href="full_article.php?id=<?= $entries['id'] ?>"><?= $entries['title'] ?></a></h2>
+                        <p style="color: white;font-weight: bold;-webkit-text-stroke: 1px black;"><?= substr($entries['caption'], 0, 100) . "..."?></p>
+                        <p style="color: white;font-weight: bold;-webkit-text-stroke: 1px black;">Published: <?= date('F j, Y, g:i a', strtotime($entries['created_date'])) ?></p>
                         <button name="category_filter" class="btn btn-primary" href="index.php" role="button" onchange="this.form.submit()" value=<?= $entries['category_name'] ?>><?= $entries['category_name'] ?></button>
                     </div>
                 <?php endwhile ?>
