@@ -34,7 +34,8 @@
 
       $add_user_statement->execute();
 
-      header("Location: successful_register.php");
+      echo "<script>alert('You have successfully registered!.');</script>";
+      header('Refresh:1; url=login.php');
     }
   }
 ?>
