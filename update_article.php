@@ -12,14 +12,44 @@
             $id = filter_input(INPUT_POST, 'id', FILTER_SANITIZE_NUMBER_INT);
             $caption = filter_input(INPUT_POST, 'caption', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
-            $query = "UPDATE articles SET title = :title, content = :content, caption = :caption WHERE id = :id";
+            if (isset($_POST['delete_image']))
+            {
+                // Delete image from database.
+                $image_file = null;
 
-            $statement = $db->prepare($query);
+                $query = "UPDATE articles SET title = :title, content = :content, caption = :caption, image_file = :image_file WHERE id = :id";
 
-            $statement->bindValue(':title', $title);
-            $statement->bindValue(':content', $content);
-            $statement->bindValue(':id', $id, PDO::PARAM_INT);
-            $statement->bindValue(':caption', $caption);
+                $statement = $db->prepare($query);
+
+                $statement->bindValue(':title', $title);
+                $statement->bindValue(':content', $content);
+                $statement->bindValue(':id', $id, PDO::PARAM_INT);
+                $statement->bindValue(':caption', $caption);
+                $statement->bindValue(':image_file', $image_file);
+
+                // Delete image from local folder.
+                $id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
+                $query2 = "SELECT * FROM articles WHERE id = :id";
+                $statement2 = $db->prepare($query2);
+                $statement2->bindValue(':id', $id, PDO::PARAM_INT);
+                $statement2->execute();
+                $row2 = $statement2->fetch(); 
+
+                $img = $row2['image_file'];
+                $imgpath = 'uploads/'.$img;
+                unlink($imgpath);
+            }
+            else
+            {
+                $query = "UPDATE articles SET title = :title, content = :content, caption = :caption WHERE id = :id";
+
+                $statement = $db->prepare($query);
+
+                $statement->bindValue(':title', $title);
+                $statement->bindValue(':content', $content);
+                $statement->bindValue(':id', $id, PDO::PARAM_INT);
+                $statement->bindValue(':caption', $caption);
+            }
 
             $statement->execute();
 
@@ -90,6 +120,8 @@
             <input id="caption" name="caption" value="<?= $row['caption'] ?>">
             <label for="content">Content</label>
             <textarea id="content" name="content" rows="50" cols="100"><?= $row['content'] ?></textarea>
+            <input type="checkbox" id="delete_image" name="delete_image" value="Delete Image">
+            <label for="delete_image">Delete Image</label>
             <input type="submit" value="Update Article" id="update">
             <input type="submit" value="Delete Article" id="delete" onclick="return confirm('Are you sure you want to delete this article?')" formaction="delete_article.php?id='<?= $row['id'] ?>'">     
         </form>
